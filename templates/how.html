@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}How it works · Mini-Bot Face Desk{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1>How Mini-Bot recognizes a face</h1>
+    <p>The AI algorithm, the hardware, and the answers to the activity questions.</p>
+  </div>
+</header>
+
+<section class="panel tasks">
+  <div class="panel-head"><h3>Additional task checklist</h3></div>
+  <ul class="check">
+    <li><b>Website control and monitoring</b> The <a href="/">Dashboard</a> starts and stops the module, shows the live feed, tunes match strictness and keeps an activity log.</li>
+    <li><b>Buzzer</b> A buzzer on GPIO 17 beeps three times when a face is not registered or not recognized. The dashboard sends the notification at the same moment.</li>
+    <li><b>Face display module</b> The Detected face card shows the captured face with a green Recognized or red Not recognized badge.</li>
+    <li><b>Mini-Bot as the actor</b> The robot on the dashboard smiles for known faces, frowns and shakes for strangers, and sleeps when the system is stopped.</li>
+  </ul>
+</section>
+
+<section class="panel algo">
+  <div class="panel-head"><h3>AI algorithm design</h3><span class="meta">Runs once per camera frame</span></div>
+  <div class="algo-grid">
+    <figure class="flow">
+      <svg viewBox="0 0 800 900" role="img" aria-label="Flowchart of the face recognition algorithm">
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ah"/></marker>
+        </defs>
+        <g class="ln">
+          <path d="M400 50V80" marker-end="url(#ar)"/>
+          <path d="M400 130V160" marker-end="url(#ar)"/>
+          <path d="M400 210V240" marker-end="url(#ar)"/>
+          <path d="M400 290V320" marker-end="url(#ar)"/>
+          <path d="M520 360H720V105H522" marker-end="url(#ar)"/>
+          <path d="M400 400V430" marker-end="url(#ar)"/>
+          <path d="M400 480V510" marker-end="url(#ar)"/>
+          <path d="M400 560V590" marker-end="url(#ar)"/>
+          <path d="M280 630H160V700" marker-end="url(#ar)"/>
+          <path d="M520 630H640V700" marker-end="url(#ar)"/>
+          <path d="M160 780V845H278" marker-end="url(#ar)"/>
+          <path d="M640 780V845H522" marker-end="url(#ar)"/>
+          <path class="dash" d="M400 870V890H15V105H278" marker-end="url(#ar)"/>
+        </g>
+        <g class="nd">
+          <rect class="term" x="320" y="10" width="160" height="40" rx="20"/><text x="400" y="35">Start</text>
+          <rect x="280" y="80" width="240" height="50" rx="10"/><text x="400" y="110">Capture frame (Pi Camera)</text>
+          <rect x="280" y="160" width="240" height="50" rx="10"/><text x="400" y="190">Shrink to ¼ size, BGR to RGB</text>
+          <rect x="280" y="240" width="240" height="50" rx="10"/><text x="400" y="270">Detect faces (HOG)</text>
+          <path class="dec" d="M400 320L520 360L400 400L280 360Z"/><text x="400" y="365">Face found?</text>
+          <rect x="280" y="430" width="240" height="50" rx="10"/><text x="400" y="460">Encode face (128 numbers)</text>
+          <rect x="280" y="510" width="240" height="50" rx="10"/><text x="400" y="540">Compare with saved faces</text>
+          <path class="dec" d="M400 590L520 630L400 670L280 630Z"/><text x="400" y="635">Closest ≤ tolerance?</text>
+          <rect class="okb" x="40" y="700" width="240" height="80" rx="12"/>
+          <text x="160" y="732">Recognized</text><text class="sm" x="160" y="755">Green box, name and role, log it</text>
+          <rect class="badb" x="520" y="700" width="240" height="80" rx="12"/>
+          <text x="640" y="732">Not recognized</text><text class="sm" x="640" y="755">Red box, buzzer, notification</text>
+          <rect x="280" y="820" width="240" height="50" rx="10"/><text x="400" y="850">Update dashboard + Mini-Bot</text>
+        </g>
+        <g class="lb"><text x="590" y="350">no</text><text x="412" y="418">yes</text><text x="220" y="620">yes</text><text x="580" y="620">no</text><text x="200" y="882">next frame</text></g>
+      </svg>
+    </figure>
+
+    <div class="prose">
+      <h4>Discussion</h4>
+      <p>Mini-Bot uses <b>face embeddings</b>. The camera frame is shrunk to a quarter of its size so the Raspberry Pi can keep up. A <b>HOG (histogram of oriented gradients) detector</b> finds where faces are. For each face, a small neural network from the <code>face_recognition</code> library (built on dlib) turns the face into a list of 128 numbers that describe its shape.</p>
+      <p>Recognition is a distance check. The new face's 128 numbers are compared with the saved numbers of every enrolled person. If the closest saved face is within the <b>tolerance</b> (0.5 by default), Mini-Bot names that person. If not, the face is unknown.</p>
+      <p>An unknown face must stay in view for one second before the buzzer fires. A six-second cooldown stops repeated beeping. These two rules cut false alarms from blurry frames and people walking past.</p>
+      <p>Lowering the tolerance makes matching stricter: fewer strangers are accepted, but registered people are missed more often. Raising it does the opposite. The slider on the dashboard lets you tune this live.</p>
+    </div>
+  </div>
+</section>
+
+<section class="panel hw">
+  <div class="panel-head"><h3>Hardware wiring</h3></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Part</th><th>Connects to</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td>Pi Camera Module</td><td>CSI ribbon port</td><td>Enable it in Raspberry Pi OS, then reboot.</td></tr>
+        <tr><td>Buzzer (+)</td><td>GPIO 17 (physical pin 11)</td><td>Use an active buzzer. Change the pin with the BUZZER_PIN variable.</td></tr>
+        <tr><td>Buzzer (−)</td><td>GND (physical pin 9)</td><td>Add a 100 Ω resistor if your buzzer is loud.</td></tr>
+        <tr><td>Laptop or phone</td><td>Same Wi-Fi as the Pi</td><td>Open http://&lt;pi-address&gt;:5000 in a browser.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel qa">
+  <div class="panel-head"><h3>Activity questions</h3></div>
+
+  <details open>
+    <summary>What are the key components of a face recognition system on a Raspberry Pi, and how do they work together?</summary>
+    <div class="answer">
+      <p>Seven parts work in a chain:</p>
+      <ul>
+        <li><b>Raspberry Pi</b> runs everything: capture, recognition, web server and buzzer control.</li>
+        <li><b>Camera module</b> (CSI port) captures the frames. Its resolution and lens decide how clear a face is.</li>
+        <li><b>Python and OpenCV</b> read frames, resize them, convert colors and draw the boxes.</li>
+        <li><b>face_recognition (dlib)</b> detects faces and turns each into a 128-number encoding.</li>
+        <li><b>Known-faces database</b> holds the enrolled photos and their encodings (the <code>known_faces</code> folder).</li>
+        <li><b>Flask web app</b> streams the video, shows results and takes commands from the browser.</li>
+        <li><b>Buzzer on GPIO</b> gives an audible alert for unknown faces.</li>
+      </ul>
+      <p>The camera feeds frames to the Python script. The script detects and encodes faces and compares them with the database. The result goes to the Flask dashboard, and an unknown result also triggers the buzzer.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>How does the choice of face recognition algorithm affect accuracy and performance, and which suit a Raspberry Pi?</summary>
+    <div class="answer">
+      <p>Better accuracy usually costs more computing time, and a Raspberry Pi has limited power. The choice sets how many frames per second you get and how often faces are missed or confused.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Algorithm</th><th>Speed on a Pi</th><th>Accuracy</th><th>Fit</th></tr></thead>
+          <tbody>
+            <tr><td>Haar cascade detection + LBPH recognition</td><td>Fast</td><td>Low to medium. Sensitive to light and angle.</td><td>Pi Zero or Pi 3, simple projects</td></tr>
+            <tr><td>HOG detection + dlib embeddings (used here)</td><td>Medium, about 2 to 5 fps on a Pi 4 with a shrunk frame</td><td>High for front-facing faces</td><td>Pi 4 or Pi 5, best balance for this activity</td></tr>
+            <tr><td>dlib CNN detection</td><td>Very slow without a GPU</td><td>Very high, handles angles</td><td>Not suited to a Pi</td></tr>
+            <tr><td>Lightweight neural nets (YuNet, MobileFaceNet with TensorFlow Lite)</td><td>Fast</td><td>High</td><td>Best upgrade path for real-time use</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>To speed up any choice: shrink the frame, detect on every second frame, and keep the camera at 640×480.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>What are common challenges with face recognition systems, and how can they be addressed?</summary>
+    <div class="answer">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Challenge</th><th>How to address it</th></tr></thead>
+          <tbody>
+            <tr><td>Poor or uneven lighting</td><td>Add steady front lighting, avoid backlight, and enroll photos taken in the real location.</td></tr>
+            <tr><td>Head angle and distance</td><td>Mount the camera at face height and enroll several photos per person.</td></tr>
+            <tr><td>Glasses, masks, hats</td><td>Enroll the person both with and without the accessory.</td></tr>
+            <tr><td>False matches and misses</td><td>Tune the tolerance, and require the face to stay in view before alerting.</td></tr>
+            <tr><td>Photo spoofing</td><td>Add liveness checks such as blink detection, or a depth sensor.</td></tr>
+            <tr><td>Slow processing</td><td>Reduce frame size, skip frames, or use a lighter model.</td></tr>
+            <tr><td>Privacy and consent</td><td>Enroll only people who agreed, store data locally and let people be removed.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+</section>
+{% endblock %}

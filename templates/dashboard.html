@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Mini-Bot Face Desk{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1>Who is at the door?</h1>
+    <p>Live control and monitoring for the face recognition module.</p>
+  </div>
+  <div class="head-actions">
+    <button class="btn ghost" id="notifyBtn" type="button">Turn on browser alerts</button>
+    <button class="btn primary" id="powerBtn" type="button">Start</button>
+  </div>
+</header>
+
+<section class="top">
+  <div class="stage" id="stage" data-state="offline">
+    <svg class="bot" id="bot" viewBox="0 0 200 210" role="img" aria-label="Mini-Bot expression">
+      <g class="ant"><line x1="100" y1="20" x2="100" y2="42"/><circle cx="100" cy="14" r="7"/></g>
+      <g class="head">
+        <rect class="ear" x="16" y="78" width="14" height="38" rx="7"/>
+        <rect class="ear" x="170" y="78" width="14" height="38" rx="7"/>
+        <rect class="shell-r" x="28" y="42" width="144" height="116" rx="38"/>
+        <rect class="screen" x="44" y="58" width="112" height="84" rx="26"/>
+        <g class="face f-offline"><path d="M66 94h20M114 94h20"/><path d="M90 118q10 6 20 0"/></g>
+        <g class="face f-no_face"><rect class="blink" x="66" y="82" width="20" height="26" rx="10"/><rect class="blink" x="114" y="82" width="20" height="26" rx="10"/><path d="M90 122h20"/></g>
+        <g class="face f-recognized"><path d="M64 100q12-20 24 0M112 100q12-20 24 0"/><path d="M80 116q20 20 40 0"/></g>
+        <g class="face f-unknown"><path d="M62 82l28 10M138 82l-28 10"/><rect x="68" y="96" width="18" height="12" rx="6"/><rect x="114" y="96" width="18" height="12" rx="6"/><path d="M82 126h36"/></g>
+      </g>
+      <rect class="neck" x="76" y="158" width="48" height="12" rx="4"/>
+      <rect class="torso" x="52" y="168" width="96" height="34" rx="14"/>
+      <circle class="led" cx="100" cy="185" r="5"/>
+    </svg>
+
+    <div class="verdict">
+      <h2 id="verdictTitle">Mini-Bot is asleep</h2>
+      <p id="verdictSub">Press Start to wake the camera.</p>
+      <div class="chips">
+        <span class="chip" id="chipRole" hidden></span>
+        <span class="chip" id="chipScore" hidden></span>
+        <span class="chip" id="chipSince">–</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel feed">
+    <div class="panel-head">
+      <h3>Live camera</h3>
+      <span class="meta" id="feedMeta">–</span>
+    </div>
+    <div class="feed-frame">
+      <img src="/video_feed" alt="Live camera feed with face boxes">
+    </div>
+  </div>
+</section>
+
+<section class="mid">
+  <div class="panel face-module" id="faceModule" data-state="offline">
+    <div class="panel-head"><h3>Detected face</h3></div>
+    <div class="face-box">
+      <img id="faceImg" alt="Last detected face" hidden>
+      <div class="face-empty" id="faceEmpty">No face captured yet</div>
+      <span class="badge" id="faceBadge">Waiting</span>
+    </div>
+    <p class="face-name" id="faceName">–</p>
+    <p class="face-note" id="faceNote">The most recent face the camera saw will show here.</p>
+  </div>
+
+  <div class="panel controls">
+    <div class="panel-head"><h3>Buzzer and settings</h3></div>
+    <div class="buzzer-row">
+      <div class="buzzer-icon" id="buzzerIcon" aria-hidden="true">
+        <svg viewBox="0 0 48 48" width="44" height="44"><circle cx="24" cy="26" r="15"/><circle cx="24" cy="26" r="4"/><path class="wave" d="M8 10q-5 8 0 16M40 10q5 8 0 16"/></svg>
+      </div>
+      <div>
+        <strong id="buzzerState">Buzzer on</strong>
+        <p class="muted" id="buzzerPin">GPIO 17</p>
+      </div>
+      <label class="switch" title="Turn the buzzer on or off">
+        <input type="checkbox" id="buzzerToggle" checked>
+        <span></span>
+      </label>
+    </div>
+    <button class="btn" id="testBuzzer" type="button">Test buzzer</button>
+
+    <div class="slider">
+      <label for="tolerance">Match strictness <output id="tolOut">0.50</output></label>
+      <input type="range" id="tolerance" min="0.3" max="0.7" step="0.05" value="0.5">
+      <div class="slider-ends"><span>Stricter</span><span>Looser</span></div>
+    </div>
+  </div>
+
+  <div class="panel stats">
+    <div class="panel-head"><h3>This session</h3></div>
+    <dl>
+      <div class="stat ok"><dt>Recognized</dt><dd id="stRec">0</dd></div>
+      <div class="stat bad"><dt>Unknown faces</dt><dd id="stUnk">0</dd></div>
+      <div class="stat"><dt>Buzzer alerts</dt><dd id="stBuz">0</dd></div>
+      <div class="stat"><dt>Enrolled people</dt><dd id="stPpl">0</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="panel log">
+  <div class="panel-head"><h3>Activity log</h3><span class="meta">Newest first</span></div>
+  <ul id="logList" class="log-list">
+    <li class="empty">Nothing yet. Events appear here when Mini-Bot sees someone.</li>
+  </ul>
+</section>
+{% endblock %}

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Mini-Bot Face Desk{% endblock %}</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='8' y='14' width='48' height='40' rx='14' fill='%232B59FF'/%3E%3Crect x='20' y='28' width='8' height='10' rx='4' fill='white'/%3E%3Crect x='36' y='28' width='8' height='10' rx='4' fill='white'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="shell">
+    <aside class="side">
+      <a class="brand" href="/">
+        <svg viewBox="0 0 64 64" width="38" height="38" aria-hidden="true">
+          <rect x="6" y="12" width="52" height="42" rx="15" fill="#2B59FF"/>
+          <rect x="18" y="27" width="9" height="12" rx="4.5" fill="#fff"/>
+          <rect x="37" y="27" width="9" height="12" rx="4.5" fill="#fff"/>
+          <circle cx="32" cy="7" r="4" fill="#E8A317"/><rect x="31" y="8" width="2" height="6" fill="#E8A317"/>
+        </svg>
+        <span>Mini-Bot<small>Face Desk</small></span>
+      </a>
+      <nav>
+        <a href="/" class="{{ 'on' if active == 'dashboard' }}">Dashboard</a>
+        <a href="/people" class="{{ 'on' if active == 'people' }}">People</a>
+        <a href="/how-it-works" class="{{ 'on' if active == 'how' }}">How it works</a>
+      </nav>
+      <div class="conn" id="conn"><i></i><span>Connecting…</span></div>
+    </aside>
+    <main class="main">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

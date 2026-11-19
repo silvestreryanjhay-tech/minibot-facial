@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}People · Mini-Bot Face Desk{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1>People Mini-Bot knows</h1>
+    <p>Add a face so it is recognized. Anyone not on this list sets off the buzzer.</p>
+  </div>
+</header>
+
+<section class="people-layout">
+  <form class="panel enroll" id="enrollForm" autocomplete="off">
+    <div class="panel-head"><h3>Add a person</h3></div>
+    <label>Name
+      <input type="text" name="name" placeholder="e.g. Maria Santos" required>
+    </label>
+    <label>Role
+      <input type="text" name="role" placeholder="e.g. Student, Instructor, Visitor">
+    </label>
+
+    <fieldset class="source">
+      <legend>Face photo</legend>
+      <label class="radio"><input type="radio" name="source" value="upload" checked> Upload a photo</label>
+      <label class="radio"><input type="radio" name="source" value="camera"> Use the live camera</label>
+    </fieldset>
+    <label id="photoField">Photo (one clear, front-facing face)
+      <input type="file" name="photo" accept="image/*">
+    </label>
+    <p class="muted" id="cameraHint" hidden>Ask the person to face the camera, then press Add person. The camera must be running.</p>
+
+    <button class="btn primary" type="submit">Add person</button>
+    <p class="form-msg" id="formMsg" role="status"></p>
+  </form>
+
+  <div class="people-grid" id="peopleGrid">
+    <p class="muted">Loading…</p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,11 @@
+# --- Always needed (enough to run the dashboard in DEMO mode on any laptop) ---
+flask>=3.0
+numpy
+opencv-python
+
+# --- Needed for REAL face recognition (Raspberry Pi or a PC where dlib builds) ---
+# face_recognition        # also installs dlib (needs cmake + a C++ compiler, slow on a Pi)
+
+# --- Raspberry Pi only ---
+# gpiozero                # buzzer on GPIO
+# picamera2               # install with: sudo apt install python3-picamera2
